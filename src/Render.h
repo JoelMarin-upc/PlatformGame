@@ -3,6 +3,9 @@
 #include "Module.h"
 #include "Vector2D.h"
 #include "SDL3/SDL.h"
+#include "Entity.h"
+
+class Entity;
 
 class Render : public Module
 {
@@ -39,12 +42,15 @@ public:
 	// Set background color
 	void SetBackgroundColor(SDL_Color color);
 
+	void CameraFollow();
+
 public:
 
 	SDL_Renderer* renderer;
 	SDL_Rect camera;
 	SDL_Rect viewport;
 	SDL_Color background;
+	std::shared_ptr<Entity> follow;
 
 private:
 	bool vsync = false;

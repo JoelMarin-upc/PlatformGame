@@ -91,6 +91,7 @@ bool Render::PostUpdate()
 {
 	SDL_SetRenderDrawColor(renderer, background.r, background.g, background.g, background.a);
 	SDL_RenderPresent(renderer);
+	CameraFollow();
 	return true;
 }
 
@@ -105,6 +106,13 @@ bool Render::CleanUp()
 void Render::SetBackgroundColor(SDL_Color color)
 {
 	background = color;
+}
+
+void Render::CameraFollow()
+{
+	if (!follow) return;
+	camera.x = -follow->position.getX() + camera.w / 2;
+	camera.y = -follow->position.getY() + camera.h / 1.2;
 }
 
 void Render::SetViewPort(const SDL_Rect& rect)
