@@ -111,8 +111,35 @@ void Render::SetBackgroundColor(SDL_Color color)
 void Render::CameraFollow()
 {
 	if (!follow) return;
-	camera.x = -follow->position.getX() + camera.w / 2;
-	camera.y = -follow->position.getY() + camera.h / 1.2;
+	/*camera.x = -follow->position.getX() + camera.w / 2.f;
+	camera.y = -follow->position.getY() + camera.h / 1.2f;*/
+
+	const float deadZoneWidth = camera.w * 0.4f;
+	const float deadZoneHeight = camera.h * 0.4f;
+
+	float leftBound = -camera.x + (camera.w - deadZoneWidth) / 2.f;
+	float rightBound = -camera.x + (camera.w + deadZoneWidth) / 2.f;
+	float topBound = -camera.y + (camera.h - deadZoneHeight) / 2.f;
+	float bottomBound = -camera.y + (camera.h + deadZoneHeight) / 2.f;
+
+	float playerX = follow->position.getX();
+	float playerY = follow->position.getY();
+
+	if (playerX < leftBound)
+		camera.x = -(playerX - (camera.w - deadZoneWidth) / 2.f);
+	else if (playerX > rightBound)
+		camera.x = -(playerX - (camera.w + deadZoneWidth) / 2.f);
+
+	if (playerY < topBound)
+		camera.y = -(playerY - (camera.h - deadZoneHeight) / 2.f);
+	else if (playerY > bottomBound)
+		camera.y = -(playerY - (camera.h + deadZoneHeight) / 2.f);
+
+	// Optional: clamp camera to world limits
+	//camera.x = std::clamp(camera.x, -worldWidth + (float)camera.w, 0.0f);
+	//camera.y = std::clamp(camera.y, -worldHeight + (float)camera.h, 0.0f);
+
+	//LOG("x: %d  y: %d", camera.x, camera.y);
 }
 
 void Render::SetViewPort(const SDL_Rect& rect)
