@@ -55,6 +55,7 @@ bool Player::Start() {
 
 bool Player::Update(float dt)
 {
+	CheckGround();
 	GetPhysicsValues();
 	Move();
 	Jump();
@@ -62,6 +63,18 @@ bool Player::Update(float dt)
 	Draw(dt);
 
 	return true;
+}
+
+void Player::CheckGround()
+{
+	b2Vec2 feetPos{ position.getX(), position.getY() + 5 + texH / 2};
+	float _;
+	int dist = pbody->RayCast(position.getX(), position.getY(), feetPos.x, feetPos.y, _, _);
+	if (dist != -1)
+	{
+		isJumping = false;
+		anims.SetCurrent("idle");
+	}
 }
 
 void Player::GetPhysicsValues() {
@@ -129,8 +142,8 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 	case ColliderType::PLATFORM:
 		LOG("Collision PLATFORM");
 		//reset the jump flag when touching the ground
-		isJumping = false;
-		anims.SetCurrent("idle");
+		/*isJumping = false;
+		anims.SetCurrent("idle");*/
 		break;
 	case ColliderType::ITEM:
 		LOG("Collision ITEM");

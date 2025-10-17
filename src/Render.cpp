@@ -115,7 +115,7 @@ void Render::CameraFollow()
 	camera.y = -follow->position.getY() + camera.h / 1.2f;*/
 
 	const float deadZoneWidth = camera.w * 0.4f;
-	const float deadZoneHeight = camera.h * 0.4f;
+	const float deadZoneHeight = camera.h * 0.7f;
 
 	float leftBound = -camera.x + (camera.w - deadZoneWidth) / 2.f;
 	float rightBound = -camera.x + (camera.w + deadZoneWidth) / 2.f;

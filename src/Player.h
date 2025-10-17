@@ -29,6 +29,7 @@ public:
 
 private:
 
+	void CheckGround();
 	void GetPhysicsValues();
 	void Move();
 	void Jump();
