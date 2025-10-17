@@ -86,6 +86,18 @@ struct TileSet
 
 };
 
+struct Object
+{
+    int id, x, y, width, height;
+};
+
+struct ObjectGroup
+{
+    int id;
+    std::string name;
+    std::list<Object*> objects;
+};
+
 // L06: TODO 1: Create a struct needed to hold the information to Map node
 struct MapData
 {
@@ -97,6 +109,7 @@ struct MapData
 
     // L07: TODO 2: Add the info to the MapLayer Struct
     std::list<MapLayer*> layers;
+    std::list<ObjectGroup*> objectlayers;
 };
 
 class Map : public Module

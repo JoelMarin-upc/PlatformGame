@@ -172,22 +172,50 @@ bool Map::Load(std::string path, std::string fileName)
             mapData.layers.push_back(mapLayer);
         }
 
+        for (pugi::xml_node objectGroupNode = mapFileXML.child("map").child("objectgroup"); objectGroupNode != NULL; objectGroupNode = objectGroupNode.next_sibling("objectgroup")) {
+
+            ObjectGroup* objectGroup = new ObjectGroup();
+            objectGroup->id = objectGroupNode.attribute("id").as_int();
+            objectGroup->name = objectGroupNode.attribute("name").as_string();
+
+            for (pugi::xml_node objectNode = objectGroupNode.child("object"); objectNode != NULL; objectNode = objectNode.next_sibling("object")) {
+                Object* object = new Object();
+                object->id = objectNode.attribute("id").as_int();
+                object->x = objectNode.attribute("x").as_int();
+                object->y = objectNode.attribute("y").as_int();
+                object->width = objectNode.attribute("width").as_int();
+                object->height = objectNode.attribute("height").as_int();
+                objectGroup->objects.push_back(object);
+            }
+
+            mapData.objectlayers.push_back(objectGroup);
+        }
+
         // L08 TODO 3: Create colliders
         // L08 TODO 7: Assign collider type
         // Later you can create a function here to load and create the colliders from the map
 
-        //Iterate the layer and create colliders
-        for (const auto& mapLayer : mapData.layers) {
-            if (mapLayer->name == "Collisions") {
-                for (int i = 0; i < mapData.height; i++) {
-                    for (int j = 0; j < mapData.width; j++) {
-                        int gid = mapLayer->Get(i, j);
-                        if (gid == 49) {
-                            Vector2D mapCoord = MapToWorld(i, j);
-                            PhysBody* c1 = Engine::GetInstance().physics.get()->CreateRectangle(mapCoord.getX()+ mapData.tileWidth/2, mapCoord.getY()+ mapData.tileHeight/2, mapData.tileWidth, mapData.tileHeight, STATIC);
-                            c1->ctype = ColliderType::PLATFORM;
-                        }
-                    }
+        ////Iterate the layer and create colliders
+        //for (const auto& mapLayer : mapData.layers) {
+        //    if (mapLayer->name == "Collisions") {
+        //        for (int i = 0; i < mapData.height; i++) {
+        //            for (int j = 0; j < mapData.width; j++) {
+        //                int gid = mapLayer->Get(i, j);
+        //                if (gid == 49) {
+        //                    Vector2D mapCoord = MapToWorld(i, j);
+        //                    PhysBody* c1 = Engine::GetInstance().physics.get()->CreateRectangle(mapCoord.getX()+ mapData.tileWidth/2, mapCoord.getY()+ mapData.tileHeight/2, mapData.tileWidth, mapData.tileHeight, STATIC);
+        //                    c1->ctype = ColliderType::PLATFORM;
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
+        for (const auto& objectGroup : mapData.objectlayers) {
+            if (objectGroup->name == "Collisions") {
+                for (const auto& object : objectGroup->objects) {
+                    PhysBody* c1 = Engine::GetInstance().physics.get()->CreateRectangle(object->x + object->width / 2, object->y + object->height / 2, object->width, object->height, STATIC);
+                    c1->ctype = ColliderType::PLATFORM;
                 }
             }
         }

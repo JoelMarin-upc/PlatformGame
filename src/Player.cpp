@@ -55,8 +55,8 @@ bool Player::Start() {
 
 bool Player::Update(float dt)
 {
-	CheckGround();
 	GetPhysicsValues();
+	CheckGround();
 	Move();
 	Jump();
 	ApplyPhysics();
@@ -67,24 +67,30 @@ bool Player::Update(float dt)
 
 void Player::CheckGround()
 {
-	b2Vec2 feetPos{ position.getX(), position.getY() + 5 + texH / 2};
-	float _;
-	int dist = pbody->RayCast(position.getX(), position.getY(), feetPos.x, feetPos.y, _, _);
-	if (dist != -1)
+	float verticalVel = std::abs(velocity.y);
+	if (verticalVel < 0.1)
 	{
-		isJumping = false;
-		anims.SetCurrent("idle");
+		b2Vec2 feetPos{ position.getX(), position.getY() + 20 + texH / 2 };
+		float _;
+		int dist = pbody->RayCast(position.getX(), position.getY(), feetPos.x, feetPos.y, _, _);
+		if (dist != -1) {
+			isJumping = false;
+			anims.SetCurrent("idle");
+		}
+	}
+	else {
+		isJumping = true;
 	}
 }
 
 void Player::GetPhysicsValues() {
 	// Read current velocity
 	velocity = Engine::GetInstance().physics->GetLinearVelocity(pbody);
-	velocity = { 0, velocity.y }; // Reset horizontal velocity by default, this way the player stops when no key is pressed
+	if (!isJumping) velocity = { 0, velocity.y }; // Reset horizontal velocity by default, this way the player stops when no key is pressed
 }
 
 void Player::Move() {
-	
+	if (isJumping) return;
 	// Move left/right
 	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
 		velocity.x = -speed;
