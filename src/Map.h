@@ -148,6 +148,7 @@ public:
 public: 
     std::string mapFileName;
     std::string mapPath;
+    Vector2D* playerStartPos = nullptr;
 
 private:
     bool mapLoaded;

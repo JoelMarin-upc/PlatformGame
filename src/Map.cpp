@@ -195,21 +195,22 @@ bool Map::Load(std::string path, std::string fileName)
         // L08 TODO 7: Assign collider type
         // Later you can create a function here to load and create the colliders from the map
 
-        ////Iterate the layer and create colliders
-        //for (const auto& mapLayer : mapData.layers) {
-        //    if (mapLayer->name == "Collisions") {
-        //        for (int i = 0; i < mapData.height; i++) {
-        //            for (int j = 0; j < mapData.width; j++) {
-        //                int gid = mapLayer->Get(i, j);
-        //                if (gid == 49) {
-        //                    Vector2D mapCoord = MapToWorld(i, j);
-        //                    PhysBody* c1 = Engine::GetInstance().physics.get()->CreateRectangle(mapCoord.getX()+ mapData.tileWidth/2, mapCoord.getY()+ mapData.tileHeight/2, mapData.tileWidth, mapData.tileHeight, STATIC);
-        //                    c1->ctype = ColliderType::PLATFORM;
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+        //Iterate the layer and create colliders
+        for (const auto& mapLayer : mapData.layers) {
+            if (mapLayer->name == "Logic") {
+                for (int i = 0; i < mapData.height; i++) {
+                    for (int j = 0; j < mapData.width; j++) {
+                        int gid = mapLayer->Get(i, j);
+                        Vector2D mapCoord = MapToWorld(i, j);
+                        if (gid == 49) {
+                            PhysBody* c1 = Engine::GetInstance().physics.get()->CreateRectangle(mapCoord.getX()+ mapData.tileWidth/2, mapCoord.getY()+ mapData.tileHeight/2, mapData.tileWidth, mapData.tileHeight, STATIC);
+                            c1->ctype = ColliderType::DEATHZONE;
+                        }
+                        else if (gid == 50) playerStartPos = new Vector2D(mapCoord);
+                    }
+                }
+            }
+        }
 
         for (const auto& objectGroup : mapData.objectlayers) {
             if (objectGroup->name == "Collisions") {

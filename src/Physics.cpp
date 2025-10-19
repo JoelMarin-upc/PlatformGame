@@ -350,6 +350,12 @@ void Physics::ApplyLinearImpulseToCenter(PhysBody* p, float ix, float iy, bool w
     b2Body_ApplyLinearImpulseToCenter(p->body, imp, wake);
 }
 
+void Physics::DestroyBody(PhysBody* p) const
+{
+    b2DestroyBody(p->body);
+}
+
+
 //
 //--------------- PhysBody --------------------
 //
