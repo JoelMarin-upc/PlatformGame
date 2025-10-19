@@ -39,6 +39,7 @@ private:
 	void Throw();
 	void Dash();
 	void ApplyPhysics();
+	void Die();
 	void Draw(float dt);
 
 public:
@@ -54,7 +55,7 @@ public:
 
 	// L08 TODO 5: Add physics to the player - declare a Physics body
 	PhysBody* pbody;
-	float jumpForce = 1.5f; // The force to apply when jumping
+	float jumpForce = 2.f; // The force to apply when jumping
 	bool isJumping = false; // Flag to check if the player is currently jumping
 	float dashForce = 3.0f; // The force to apply when dashing
 	bool isDashing = false; // Flag to check if the player is currently dashing

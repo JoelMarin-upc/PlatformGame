@@ -4,6 +4,7 @@
 #include "Audio.h"
 #include "Input.h"
 #include "Render.h"
+#include "Map.h"
 #include "Scene.h"
 #include "Log.h"
 #include "Physics.h"
@@ -21,11 +22,15 @@ Player::~Player() {
 bool Player::Awake() {
 
 	//L03: TODO 2: Initialize Player parameters
-	position = Vector2D(96, 96);
+	
 	return true;
 }
 
 bool Player::Start() {
+
+	Vector2D* startPos = Engine::GetInstance().map->playerStartPos;
+	if (startPos) position = *startPos;
+	else position = Vector2D(90, 90);
 
 	// load
 	std::unordered_map<int, std::string> aliases = { {0,"idle"},{11,"move"},{22,"jump"} };
@@ -40,6 +45,7 @@ bool Player::Start() {
 	texW = 32;
 	texH = 32;
 	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::DYNAMIC);
+	//pbody = Engine::GetInstance().physics->CreateRectangle((int)position.getX(), (int)position.getY(), texW, texW, bodyType::DYNAMIC);
 
 	// L08 TODO 6: Assign player class (using "this") to the listener of the pbody. This makes the Physics module to call the OnCollision method
 	pbody->listener = this;
@@ -84,11 +90,13 @@ void Player::CheckTimers() {
 void Player::CheckGround()
 {
 	float verticalVel = std::abs(velocity.y);
-	if (verticalVel < 0.1)
+	if (verticalVel < 0.3)
 	{
 		b2Vec2 feetPos{ position.getX(), position.getY() + 20 + texH / 2 };
 		float _;
 		int dist = pbody->RayCast(position.getX(), position.getY(), feetPos.x, feetPos.y, _, _);
+		int distLeft = pbody->RayCast(position.getX() - texW / 2, position.getY(), feetPos.x - texW / 2, feetPos.y, _, _);
+		int distRight = pbody->RayCast(position.getX() + texW / 2, position.getY(), feetPos.x + texW / 2, feetPos.y, _, _);
 		if (dist != -1) {
 			isJumping = false;
 			//isDashing = false;
@@ -104,11 +112,12 @@ void Player::CheckGround()
 void Player::GetPhysicsValues() {
 	// Read current velocity
 	velocity = Engine::GetInstance().physics->GetLinearVelocity(pbody);
-	if (!isJumping && !isDashing) velocity = { 0, velocity.y }; // Reset horizontal velocity by default, this way the player stops when no key is pressed
+	velocity = { 0, velocity.y };
+	//if (!isJumping && !isDashing) velocity = { 0, velocity.y }; // Reset horizontal velocity by default, this way the player stops when no key is pressed
 }
 
 void Player::Move() {
-	if (isJumping || isDashing) return;
+	//if (isJumping || isDashing) return;
 	// Move left/right
 	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
 		velocity.x = -speed;
@@ -207,6 +216,16 @@ void Player::ApplyPhysics() {
 	Engine::GetInstance().physics->SetLinearVelocity(pbody, velocity);
 }
 
+void Player::Die() {
+	Vector2D* startPos = Engine::GetInstance().map->playerStartPos;
+	if (startPos) position = *startPos;
+	else position = Vector2D(90, 90);
+	Engine::GetInstance().physics->DestroyBody(pbody);
+	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::DYNAMIC);	
+	pbody->listener = this;
+	pbody->ctype = ColliderType::PLAYER;
+}
+
 void Player::Draw(float dt) {
 
 	anims.Update(dt);
@@ -244,7 +263,8 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 		break;
 	case ColliderType::SPEAR:
 		spearCol = true;
-		LOG("Collision SPEAR");
+	case ColliderType::DEATHZONE:
+		Die();
 		break;
 	case ColliderType::UNKNOWN:
 		LOG("Collision UNKNOWN");
