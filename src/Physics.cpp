@@ -27,12 +27,21 @@ bool Physics::Start()
     LOG("Creating Physics 2D environment");
 
     // Create a new World (3.x uses world defs)
+    CreateWorld();
+
+    return true;
+}
+
+void Physics::CreateWorld() {
+    if (b2World_IsValid(world))
+    {
+        b2DestroyWorld(world);
+        world = b2_nullWorldId;
+    }
     b2WorldDef wdef = b2DefaultWorldDef();
     wdef.gravity.x = GRAVITY_X;
     wdef.gravity.y = -GRAVITY_Y;
     world = b2CreateWorld(&wdef);
-
-    return true;
 }
 
 // 
@@ -98,7 +107,6 @@ PhysBody* Physics::CreateRectangle(int x, int y, int width, int height, bodyType
     PhysBody* pbody = new PhysBody();
     pbody->body = b;
     b2Body_SetUserData(b, ToUserData(pbody));
-
     return pbody;
 }
 
@@ -352,7 +360,7 @@ void Physics::ApplyLinearImpulseToCenter(PhysBody* p, float ix, float iy, bool w
 
 void Physics::DestroyBody(PhysBody* p) const
 {
-    b2DestroyBody(p->body);
+    if (p) b2DestroyBody(p->body);
 }
 
 

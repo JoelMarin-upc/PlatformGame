@@ -34,7 +34,7 @@ private:
 	void Move();
 	void Jump();
 	void ApplyPhysics();
-	void Die();
+	void Respawn();
 	void Draw(float dt);
 
 public:
@@ -49,7 +49,7 @@ public:
 	int pickCoinFxId;
 
 	// L08 TODO 5: Add physics to the player - declare a Physics body
-	PhysBody* pbody;
+	PhysBody* pbody = nullptr;
 	float jumpForce = 2.f; // The force to apply when jumping
 	bool isJumping = false; // Flag to check if the player is currently jumping
 

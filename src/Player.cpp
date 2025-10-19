@@ -28,10 +28,6 @@ bool Player::Awake() {
 
 bool Player::Start() {
 
-	Vector2D* startPos = Engine::GetInstance().map->playerStartPos;
-	if (startPos) position = *startPos;
-	else position = Vector2D(90, 90);
-
 	// load
 	std::unordered_map<int, std::string> aliases = { {0,"idle"},{11,"move"},{22,"jump"} };
 	anims.LoadFromTSX("Assets/Textures/PLayer2_Spritesheet.tsx", aliases);
@@ -44,14 +40,7 @@ bool Player::Start() {
 	//Engine::GetInstance().textures->GetSize(texture, texW, texH);
 	texW = 32;
 	texH = 32;
-	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::DYNAMIC);
-	//pbody = Engine::GetInstance().physics->CreateRectangle((int)position.getX(), (int)position.getY(), texW, texW, bodyType::DYNAMIC);
-
-	// L08 TODO 6: Assign player class (using "this") to the listener of the pbody. This makes the Physics module to call the OnCollision method
-	pbody->listener = this;
-
-	// L08 TODO 7: Assign collider type
-	pbody->ctype = ColliderType::PLAYER;
+	Respawn();
 
 	//initialize audio effect
 	pickCoinFxId = Engine::GetInstance().audio->LoadFx("Assets/Audio/Fx/coin-collision-sound-342335.wav");
@@ -130,11 +119,12 @@ void Player::ApplyPhysics() {
 	Engine::GetInstance().physics->SetLinearVelocity(pbody, velocity);
 }
 
-void Player::Die() {
+void Player::Respawn() {
 	Vector2D* startPos = Engine::GetInstance().map->playerStartPos;
 	if (startPos) position = *startPos;
 	else position = Vector2D(90, 90);
 	Engine::GetInstance().physics->DestroyBody(pbody);
+	pbody = nullptr;
 	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::DYNAMIC);	
 	pbody->listener = this;
 	pbody->ctype = ColliderType::PLAYER;
@@ -176,7 +166,7 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 		physB->listener->Destroy();
 		break;
 	case ColliderType::DEATHZONE:
-		Die();
+		Respawn();
 		break;
 	case ColliderType::UNKNOWN:
 		LOG("Collision UNKNOWN");

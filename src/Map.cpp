@@ -96,6 +96,13 @@ bool Map::CleanUp()
     }
     mapData.layers.clear();
 
+    // L07 TODO 2: clean up all layer data
+    for (const auto& object : mapData.objectlayers)
+    {
+        delete object;
+    }
+    mapData.objectlayers.clear();
+
     return true;
 }
 
@@ -203,7 +210,7 @@ bool Map::Load(std::string path, std::string fileName)
                         int gid = mapLayer->Get(i, j);
                         Vector2D mapCoord = MapToWorld(i, j);
                         if (gid == 49) {
-                            PhysBody* c1 = Engine::GetInstance().physics.get()->CreateRectangle(mapCoord.getX()+ mapData.tileWidth/2, mapCoord.getY()+ mapData.tileHeight/2, mapData.tileWidth, mapData.tileHeight, STATIC);
+                            PhysBody* c1 = Engine::GetInstance().physics->CreateRectangle(mapCoord.getX()+ mapData.tileWidth/2, mapCoord.getY()+ mapData.tileHeight/2, mapData.tileWidth, mapData.tileHeight, STATIC);
                             c1->ctype = ColliderType::DEATHZONE;
                         }
                         else if (gid == 50) playerStartPos = new Vector2D(mapCoord);
@@ -215,7 +222,7 @@ bool Map::Load(std::string path, std::string fileName)
         for (const auto& objectGroup : mapData.objectlayers) {
             if (objectGroup->name == "Collisions") {
                 for (const auto& object : objectGroup->objects) {
-                    PhysBody* c1 = Engine::GetInstance().physics.get()->CreateRectangle(object->x + object->width / 2, object->y + object->height / 2, object->width, object->height, STATIC);
+                    PhysBody* c1 = Engine::GetInstance().physics->CreateRectangle(object->x + object->width / 2, object->y + object->height / 2, object->width, object->height, STATIC);
                     c1->ctype = ColliderType::PLATFORM;
                 }
             }

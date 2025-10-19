@@ -31,6 +31,9 @@
     <None Include="Assets\Maps\MapTemplate.tmx">
       <Filter>Configuration FIles</Filter>
     </None>
+    <None Include="Assets\Maps\MapTemplate1.tmx">
+      <Filter>Configuration FIles</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Audio.cpp">

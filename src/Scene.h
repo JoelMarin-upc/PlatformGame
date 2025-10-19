@@ -5,6 +5,11 @@
 
 struct SDL_Texture;
 
+struct SceneData {
+	std::string mapPath;
+	std::string mapName;
+};
+
 class Scene : public Module
 {
 public:
@@ -32,8 +37,16 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
+	void LoadScene();
+	void LoadMap();
+	void LoadAllScenes();
+	SceneData GetCurrentScene();
+	void NextScene();
+
 private:
 
 	//L03: TODO 3b: Declare a Player attribute
 	std::shared_ptr<Player> player;
+	std::vector<SceneData> scenes;
+	int currentScene;
 };

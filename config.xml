@@ -16,4 +16,11 @@
     <resizable value="false"/>
     <fullscreen_window value="false"/>
   </window>
+
+  <scene>
+	<maps>
+	  <map path="Assets/Maps/" name="MapTemplate.tmx"/>
+	  <map path="Assets/Maps/" name="MapTemplate1.tmx"/>
+	</maps>
+  </scene>
 </config>
