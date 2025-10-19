@@ -50,14 +50,30 @@ bool Player::Start() {
 
 bool Player::Update(float dt)
 {
+	CheckTimers();
 	GetPhysicsValues();
 	CheckGround();
 	Move();
 	Jump();
+	Throw();
+	Dash();
 	ApplyPhysics();
 	Draw(dt);
 
 	return true;
+}
+
+void Player::CheckTimers() {
+	if (!canThrow && (throwTimer.ReadMSec() >= throwMS || spearCol)) {
+		spear->Destroy();
+		canThrow = true;
+		spearCol = false;
+	}
+	if (isDashing && dashTimer.ReadMSec() >= dashMS) {
+		isDashing = false;
+	}
+	
+
 }
 
 void Player::CheckGround()
@@ -72,11 +88,13 @@ void Player::CheckGround()
 		int distRight = pbody->RayCast(position.getX() + texW / 2, position.getY(), feetPos.x + texW / 2, feetPos.y, _, _);
 		if (dist != -1) {
 			isJumping = false;
+			//isDashing = false;
 			anims.SetCurrent("idle");
 		}
 	}
 	else {
 		isJumping = true;
+		//isDashing = true;
 	}
 }
 
@@ -84,11 +102,11 @@ void Player::GetPhysicsValues() {
 	// Read current velocity
 	velocity = Engine::GetInstance().physics->GetLinearVelocity(pbody);
 	velocity = { 0, velocity.y };
-	//if (!isJumping) velocity = { 0, velocity.y }; // Reset horizontal velocity by default, this way the player stops when no key is pressed
+	//if (!isJumping && !isDashing) velocity = { 0, velocity.y }; // Reset horizontal velocity by default, this way the player stops when no key is pressed
 }
 
 void Player::Move() {
-	//if (isJumping) return;
+	//if (isJumping || isDashing) return;
 	// Move left/right
 	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
 		velocity.x = -speed;
@@ -109,10 +127,78 @@ void Player::Jump() {
 	}
 }
 
+void Player::Throw() {
+	if (canThrow == true && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_DOWN) {
+		canThrow = false;
+		throwTimer = Timer();
+		spear = std::dynamic_pointer_cast<Spear>(Engine::GetInstance().entityManager->CreateEntity(EntityType::SPEAR));
+		float angle = 0;
+		Vector2D initialPos = Vector2D(50, 0);
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
+			if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
+				angle = PI/4;
+				initialPos = Vector2D(0,-50);
+			}
+			else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) {
+				angle = 7 * PI / 4;
+				initialPos = Vector2D(50,0);
+			}
+			else {
+				angle = 0;
+				initialPos = Vector2D(50,0);
+			}
+		}
+		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
+			if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
+				angle = 3*PI/4;
+				initialPos = Vector2D(0,-50);
+			}
+			else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) {
+				angle = 5*PI/4;
+				initialPos = Vector2D(0,50);
+			}
+			else {
+				angle = PI;
+				initialPos = Vector2D(-50,0);
+			}
+		}
+		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
+			angle = PI/2;
+			initialPos = Vector2D(0, -50);
+		}
+		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) {
+			angle = 3*PI/2;
+			initialPos = Vector2D(0, 50);
+		}
+		spear->position = position + initialPos + Vector2D{(float) - texW / 2, (float)-texH / 2};
+		spear->Initialize(angle);
+		LOG("angle");
+	}
+}
+
+void Player::Dash() {
+	if (isDashing == false && canThrow == false && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LCTRL) == KEY_DOWN) {
+		float x = spear->position.getX() - position.getX();
+		float y = spear->position.getY() - position.getY();
+		float aux = sqrt(pow(x, 2) + pow(y, 2));
+		x = x / aux;
+		y = y / aux;
+		Engine::GetInstance().physics->SetLinearVelocity(pbody,0, 0);
+;		Engine::GetInstance().physics->ApplyLinearImpulseToCenter(pbody, x * dashForce, y * dashForce, true);
+		anims.SetCurrent("dash");
+		isDashing = true;
+		dashTimer = Timer();
+	}
+}
+
 void Player::ApplyPhysics() {
 	// Preserve vertical speed while jumping
-	if (isJumping == true) {
+	if (isJumping == true || isDashing == true) {
 		velocity.y = Engine::GetInstance().physics->GetYVelocity(pbody);
+	}
+
+	if (isDashing == true) {
+		velocity.x = Engine::GetInstance().physics->GetXVelocity(pbody);
 	}
 
 	// Apply velocity via helper
@@ -164,6 +250,9 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 		LOG("Collision ITEM");
 		Engine::GetInstance().audio->PlayFx(pickCoinFxId);
 		physB->listener->Destroy();
+		break;
+	case ColliderType::SPEAR:
+		spearCol = true;
 		break;
 	case ColliderType::DEATHZONE:
 		Respawn();
