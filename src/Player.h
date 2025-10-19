@@ -31,6 +31,7 @@ public:
 	void OnCollisionEnd(PhysBody* physA, PhysBody* physB);
 
 private:
+	void GodMode();
 	void CheckTimers();
 	void CheckGround();
 	void GetPhysicsValues();
@@ -65,6 +66,8 @@ public:
 	Timer throwTimer; // Throw duration until object is destroyed
 	float throwMS = 1000.0f;
 	bool spearCol = false;
+	bool godMode = false;
+	float godModeSpeed = 0.1f;
 	
 
 private:

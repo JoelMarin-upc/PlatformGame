@@ -83,7 +83,7 @@ bool Engine::Awake() {
     // L05: TODO 3: Read the title from the config file and set the variable gameTitle, read targetFrameRate and set the variables
     gameTitle = configFile.child("config").child("engine").child("title").child_value();
     targetFrameRate = configFile.child("config").child("engine").child("targetFrameRate").attribute("value").as_int();
-
+    currentTargetFrameRate = targetFrameRate;
     //Iterates the module list and calls Awake on each module
     bool result = true;
     for (const auto& module : moduleList) {
@@ -129,6 +129,7 @@ bool Engine::Start() {
 bool Engine::Update() {
 
     bool ret = true;
+    CapFPS();
     PrepareUpdate();
 
     if (input->GetWindowEvent(WE_QUIT) == true)
@@ -181,8 +182,8 @@ void Engine::FinishUpdate()
 {
     // L03: TODO 1: Cap the framerate of the gameloop
     double currentDt = frameTime.ReadMs();
-	float maxFrameDuration = 1000.0f / targetFrameRate;
-    if (targetFrameRate > 0 && currentDt < maxFrameDuration) {
+	float maxFrameDuration = 1000.0f / currentTargetFrameRate;
+    if (currentTargetFrameRate > 0 && currentDt < maxFrameDuration) {
         Uint32 delay = (Uint32)(maxFrameDuration - currentDt);
 
         // L03: TODO 2: Measure accurately the amount of time SDL_Delay() actually waits compared to what was expected
@@ -295,6 +296,11 @@ bool Engine::LoadConfig()
     }
 
     return ret;
+}
+
+void Engine::CapFPS()
+{
+    if (input->GetKey(SDL_SCANCODE_F11) == KEY_DOWN) currentTargetFrameRate = currentTargetFrameRate == targetFrameRate ? 30 : targetFrameRate;
 }
 
 

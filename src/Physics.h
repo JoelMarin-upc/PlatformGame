@@ -98,6 +98,9 @@ public:
 
     void   DestroyBody(PhysBody* p) const;
 
+    b2Transform GetTransform(PhysBody* p);
+    void MoveBody(PhysBody* p, b2Vec2 pos, b2Rot rot);
+
 private:
     // helpers
     static b2BodyType ToB2Type(bodyType t);

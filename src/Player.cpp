@@ -50,6 +50,7 @@ bool Player::Start() {
 
 bool Player::Update(float dt)
 {
+	GodMode();
 	CheckTimers();
 	GetPhysicsValues();
 	CheckGround();
@@ -61,6 +62,16 @@ bool Player::Update(float dt)
 	Draw(dt);
 
 	return true;
+}
+
+void Player::GodMode()
+{
+	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_F10) == KEY_DOWN)
+	{
+		godMode = !godMode;
+		if (godMode) b2Body_Disable(pbody->body);
+		else b2Body_Enable(pbody->body);
+	}
 }
 
 void Player::CheckTimers() {
@@ -108,18 +119,40 @@ void Player::GetPhysicsValues() {
 void Player::Move() {
 	//if (isJumping || isDashing) return;
 	// Move left/right
-	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
-		velocity.x = -speed;
-		anims.SetCurrent("move");
+	if (godMode) {
+		b2Transform t = Engine::GetInstance().physics->GetTransform(pbody);
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
+			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x - godModeSpeed, t.p.y }, t.q);
+			anims.SetCurrent("move");
+		}
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
+			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x + godModeSpeed, t.p.y }, t.q);
+			anims.SetCurrent("move");
+		}
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
+			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x, t.p.y - godModeSpeed }, t.q);
+			anims.SetCurrent("move");
+		}
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) {
+			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x, t.p.y + godModeSpeed }, t.q);
+			anims.SetCurrent("move");
+		}
 	}
-	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
-		velocity.x = speed;
-		anims.SetCurrent("move");
+	else {
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
+			velocity.x = -speed;
+			anims.SetCurrent("move");
+		}
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
+			velocity.x = speed;
+			anims.SetCurrent("move");
+		}
 	}
 }
 
 void Player::Jump() {
 	// This function can be used for more complex jump logic if needed
+	if (godMode) return;
 	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN && isJumping == false) {
 		Engine::GetInstance().physics->ApplyLinearImpulseToCenter(pbody, 0.0f, -jumpForce, true);
 		anims.SetCurrent("jump");

@@ -363,6 +363,16 @@ void Physics::DestroyBody(PhysBody* p) const
     if (p) b2DestroyBody(p->body);
 }
 
+b2Transform Physics::GetTransform(PhysBody * p)
+{
+    return b2Body_GetTransform(p->body);
+}
+
+void Physics::MoveBody(PhysBody* p, b2Vec2 pos, b2Rot rot)
+{
+    b2Body_SetTransform(p->body, pos, rot);
+}
+
 
 //
 //--------------- PhysBody --------------------
