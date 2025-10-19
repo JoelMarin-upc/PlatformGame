@@ -60,7 +60,7 @@ public:
 	float dashForce = 3.0f; // The force to apply when dashing
 	bool isDashing = false; // Flag to check if the player is currently dashing
 	Timer dashTimer; // Dash duration until movement stops
-	float dashMS = 1000.0f;
+	float dashMS = 300.0f;
 	bool canThrow = true; // Flag to see if the player can throw the object for dashing
 	Timer throwTimer; // Throw duration until object is destroyed
 	float throwMS = 1000.0f;

@@ -144,7 +144,7 @@ void Player::Throw() {
 		throwTimer = Timer();
 		spear = std::dynamic_pointer_cast<Spear>(Engine::GetInstance().entityManager->CreateEntity(EntityType::SPEAR));
 		float angle = 0;
-		Vector2D initialPos;
+		Vector2D initialPos = Vector2D(50, 0);
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
 			if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
 				angle = PI/4;
@@ -181,7 +181,7 @@ void Player::Throw() {
 			angle = 3*PI/2;
 			initialPos = Vector2D(0, 50);
 		}
-		spear->position = position + initialPos;
+		spear->position = position + initialPos + Vector2D{(float) - texW / 2, (float)-texH / 2};
 		spear->Initialize(angle);
 		LOG("angle");
 	}
@@ -263,6 +263,7 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 		break;
 	case ColliderType::SPEAR:
 		spearCol = true;
+		break;
 	case ColliderType::DEATHZONE:
 		Die();
 		break;
