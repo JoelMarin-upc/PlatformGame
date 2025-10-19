@@ -1,5 +1,6 @@
 #include "EntityManager.h"
 #include "Player.h"
+#include "Spear.h"
 #include "Engine.h"
 #include "Textures.h"
 #include "Scene.h"
@@ -74,6 +75,9 @@ std::shared_ptr<Entity> EntityManager::CreateEntity(EntityType type)
 		break;
 	case EntityType::ITEM:
 		entity = std::make_shared<Item>();
+		break;
+	case EntityType::SPEAR:
+		entity = std::make_shared<Spear>();
 		break;
 	default:
 		break;
