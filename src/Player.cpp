@@ -260,12 +260,13 @@ void Player::ApplyPhysics() {
 	Engine::GetInstance().physics->SetLinearVelocity(pbody, velocity);
 }
 
-void Player::Die()
+/*void Player::Die()
 {
 	dead = true;
 	anims.PlayOnce("death");
 	deathTimer = Timer();
 }
+*/
 
 void Player::Respawn() {
 	dead = false;

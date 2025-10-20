@@ -76,7 +76,6 @@ public:
 	bool godMode = false;
 	float godModeSpeed = 0.1f;
 	std::string currentAnimation = "";
-	Timer deathTimer;
 	float deathMS = 600.0f;
 	bool dead = false;
 
