@@ -212,17 +212,22 @@ void Engine::FinishUpdate()
         lastSecFrameTime.Start();
         averageFps = (averageFps + lastSecFrameCount) / 2;
         framesPerSecond = lastSecFrameCount;
+        currentFps = lastSecFrameCount;
         lastSecFrameCount = 0;
     }
+
+    std::string vsync = render->vsync ? "ON" : "OFF";
 
     // Shows the time measurements in the window title
     // check sprintf formats here https://cplusplus.com/reference/cstdio/printf/
     std::stringstream ss;
-    ss << gameTitle << ": Av.FPS: " << std::fixed << std::setprecision(2) << averageFps
+    ss << gameTitle << ": FPS: " << currentFps
+        << " Av.FPS: " << std::fixed << std::setprecision(2) << averageFps
         << " Last sec frames: " << framesPerSecond
         << " Last dt: " << std::fixed << std::setprecision(3) << dt
         << " Time since startup: " << secondsSinceStartup
-        << " Frame Count: " << frameCount;
+        << " Frame Count: " << frameCount
+        << " Vsync: " << vsync;
 
     std::string titleStr = ss.str();
 

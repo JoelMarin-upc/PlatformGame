@@ -51,7 +51,5 @@ public:
 	SDL_Rect viewport;
 	SDL_Color background;
 	std::shared_ptr<Entity> follow;
-
-private:
 	bool vsync = false;
 };

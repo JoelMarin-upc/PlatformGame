@@ -121,6 +121,7 @@ private:
 	int framesPerSecond = 0;
 	int lastSecFrameCount = 0;
 
+	int currentFps = 0.0f;
 	float averageFps = 0.0f;
 	int secondsSinceStartup = 0;
 
