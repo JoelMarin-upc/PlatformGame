@@ -31,6 +31,7 @@ public:
 	void OnCollisionEnd(PhysBody* physA, PhysBody* physB);
 
 private:
+	void GodMode();
 	void CheckTimers();
 	void CheckGround();
 	void GetPhysicsValues();
@@ -39,7 +40,7 @@ private:
 	void Throw();
 	void Dash();
 	void ApplyPhysics();
-	void Die();
+	void Respawn();
 	void Draw(float dt);
 
 public:
@@ -54,7 +55,7 @@ public:
 	int pickCoinFxId;
 
 	// L08 TODO 5: Add physics to the player - declare a Physics body
-	PhysBody* pbody;
+	PhysBody* pbody = nullptr;
 	float jumpForce = 2.f; // The force to apply when jumping
 	bool isJumping = false; // Flag to check if the player is currently jumping
 	float dashForce = 3.0f; // The force to apply when dashing
@@ -65,6 +66,8 @@ public:
 	Timer throwTimer; // Throw duration until object is destroyed
 	float throwMS = 1000.0f;
 	bool spearCol = false;
+	bool godMode = false;
+	float godModeSpeed = 0.1f;
 	
 
 private:

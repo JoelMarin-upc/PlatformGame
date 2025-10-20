@@ -28,10 +28,6 @@ bool Player::Awake() {
 
 bool Player::Start() {
 
-	Vector2D* startPos = Engine::GetInstance().map->playerStartPos;
-	if (startPos) position = *startPos;
-	else position = Vector2D(90, 90);
-
 	// load
 	texture = Engine::GetInstance().textures->Load("Assets/Textures/AnimationSheet_Character.png");
 	std::unordered_map<int, std::string> aliases = { {0,"idle"},{24,"move"},{40,"jump"},{32,"fall"},{48,"death"},{64,"throw"}};
@@ -45,14 +41,7 @@ bool Player::Start() {
 	//Engine::GetInstance().textures->GetSize(texture, texW, texH);
 	texW = 32;
 	texH = 32;
-	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::DYNAMIC);
-	//pbody = Engine::GetInstance().physics->CreateRectangle((int)position.getX(), (int)position.getY(), texW, texW, bodyType::DYNAMIC);
-
-	// L08 TODO 6: Assign player class (using "this") to the listener of the pbody. This makes the Physics module to call the OnCollision method
-	pbody->listener = this;
-
-	// L08 TODO 7: Assign collider type
-	pbody->ctype = ColliderType::PLAYER;
+	Respawn();
 
 	//initialize audio effect
 	pickCoinFxId = Engine::GetInstance().audio->LoadFx("Assets/Audio/Fx/coin-collision-sound-342335.wav");
@@ -62,6 +51,7 @@ bool Player::Start() {
 
 bool Player::Update(float dt)
 {
+	GodMode();
 	CheckTimers();
 	GetPhysicsValues();
 	CheckGround();
@@ -73,6 +63,16 @@ bool Player::Update(float dt)
 	Draw(dt);
 
 	return true;
+}
+
+void Player::GodMode()
+{
+	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_F10) == KEY_DOWN)
+	{
+		godMode = !godMode;
+		if (godMode) b2Body_Disable(pbody->body);
+		else b2Body_Enable(pbody->body);
+	}
 }
 
 void Player::CheckTimers() {
@@ -119,19 +119,41 @@ void Player::GetPhysicsValues() {
 void Player::Move() {
 	//if (isJumping || isDashing) return;
 	// Move left/right
-	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
-		velocity.x = -speed;
-		if (!isJumping) anims.SetCurrent("move");
+	if (godMode) {
+		b2Transform t = Engine::GetInstance().physics->GetTransform(pbody);
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
+			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x - godModeSpeed, t.p.y }, t.q);
+			anims.SetCurrent("move");
+		}
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
+			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x + godModeSpeed, t.p.y }, t.q);
+			anims.SetCurrent("move");
+		}
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
+			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x, t.p.y - godModeSpeed }, t.q);
+			anims.SetCurrent("move");
+		}
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) {
+			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x, t.p.y + godModeSpeed }, t.q);
+			anims.SetCurrent("move");
+		}
 	}
-	else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
-		velocity.x = speed;
-		if (!isJumping) anims.SetCurrent("move");
+	else {
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
+			velocity.x = -speed;
+			if (!isJumping) anims.SetCurrent("move");
+		}
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
+			velocity.x = speed;
+			if (!isJumping) anims.SetCurrent("move");
+		}
 	}
 	//else if (!isJumping)anims.SetCurrent("idle");
 }
 
 void Player::Jump() {
 	// This function can be used for more complex jump logic if needed
+	if (godMode) return;
 	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN && isJumping == false) {
 		Engine::GetInstance().physics->ApplyLinearImpulseToCenter(pbody, 0.0f, -jumpForce, true);
 		anims.SetCurrent("jump");
@@ -218,11 +240,12 @@ void Player::ApplyPhysics() {
 	Engine::GetInstance().physics->SetLinearVelocity(pbody, velocity);
 }
 
-void Player::Die() {
+void Player::Respawn() {
 	Vector2D* startPos = Engine::GetInstance().map->playerStartPos;
 	if (startPos) position = *startPos;
 	else position = Vector2D(90, 90);
 	Engine::GetInstance().physics->DestroyBody(pbody);
+	pbody = nullptr;
 	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::DYNAMIC);	
 	pbody->listener = this;
 	pbody->ctype = ColliderType::PLAYER;
@@ -267,7 +290,7 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 		spearCol = true;
 		break;
 	case ColliderType::DEATHZONE:
-		Die();
+		Respawn();
 		break;
 	case ColliderType::UNKNOWN:
 		LOG("Collision UNKNOWN");

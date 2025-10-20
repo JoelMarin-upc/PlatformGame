@@ -73,6 +73,8 @@ private:
 	// Load config file
 	bool LoadConfig();
 
+	void CapFPS();
+
 	std::list<std::shared_ptr<Module>> moduleList;
 
 public:
@@ -124,6 +126,7 @@ private:
 
 	//Maximun frame duration in miliseconds.
 	int targetFrameRate = 60;
+	int currentTargetFrameRate;
 
 	std::string gameTitle = "Platformer Game";
 

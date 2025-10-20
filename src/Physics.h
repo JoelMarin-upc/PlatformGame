@@ -68,6 +68,8 @@ public:
     bool PostUpdate();
     bool CleanUp();
 
+    void CreateWorld();
+
     // Create basic physics objects
     PhysBody* CreateRectangle(int x, int y, int width, int height, bodyType type);
     PhysBody* CreateCircle(int x, int y, int radious, bodyType type);
@@ -95,6 +97,9 @@ public:
     void   ApplyLinearImpulseToCenter(PhysBody* p, float ix, float iy, bool wake = true) const;
 
     void   DestroyBody(PhysBody* p) const;
+
+    b2Transform GetTransform(PhysBody* p);
+    void MoveBody(PhysBody* p, b2Vec2 pos, b2Rot rot);
 
 private:
     // helpers
