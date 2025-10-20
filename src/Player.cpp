@@ -85,7 +85,9 @@ void Player::CheckTimers() {
 	if (isDashing && dashTimer.ReadMSec() >= dashMS) {
 		isDashing = false;
 	}
-	
+	if (dead && deathTimer.ReadMSec() >= deathMS) {
+		Respawn();
+	}
 
 }
 
@@ -122,6 +124,7 @@ void Player::GetPhysicsValues() {
 void Player::Move() {
 	//if (isJumping || isDashing) return;
 	// Move left/right
+	if (dead) return;
 	if (godMode) {
 		b2Transform t = Engine::GetInstance().physics->GetTransform(pbody);
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
@@ -152,7 +155,7 @@ void Player::Move() {
 
 void Player::Jump() {
 	// This function can be used for more complex jump logic if needed
-	if (godMode) return;
+	if (godMode || dead) return;
 	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN && isJumping == false) {
 		Engine::GetInstance().physics->ApplyLinearImpulseToCenter(pbody, 0.0f, -jumpForce, true);
 		//anims.SetCurrent("jump");
@@ -162,6 +165,7 @@ void Player::Jump() {
 }
 
 void Player::Throw() {
+	if (dead) return;
 	if (canThrow == true && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_DOWN) {
 		canThrow = false;
 		throwTimer = Timer();
@@ -213,6 +217,7 @@ void Player::Throw() {
 }
 
 void Player::Dash() {
+	if (dead) return;
 	if (isDashing == false && canThrow == false && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LCTRL) == KEY_DOWN) {
 		float x = spear->position.getX() - position.getX();
 		float y = spear->position.getY() - position.getY();
@@ -241,7 +246,15 @@ void Player::ApplyPhysics() {
 	Engine::GetInstance().physics->SetLinearVelocity(pbody, velocity);
 }
 
+void Player::Die()
+{
+	dead = true;
+	anims.PlayOnce("death");
+	deathTimer = Timer();
+}
+
 void Player::Respawn() {
+	dead = false;
 	Vector2D* startPos = Engine::GetInstance().map->playerStartPos;
 	if (startPos) position = *startPos;
 	else position = Vector2D(90, 90);
@@ -254,7 +267,7 @@ void Player::Respawn() {
 
 void Player::HandleAnimations()
 {
-	if (!canThrow || isJumping) return;
+	if (!canThrow || isJumping || dead) return;
 	/*if (isDashing) {
 		if (currentAnimation != "dash") anims.SetCurrent("dash");
 		currentAnimation = "dash";
@@ -316,7 +329,7 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 		spearCol = true;
 		break;
 	case ColliderType::DEATHZONE:
-		Respawn();
+		Die();
 		break;
 	case ColliderType::UNKNOWN:
 		LOG("Collision UNKNOWN");
