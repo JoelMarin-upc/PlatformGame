@@ -217,12 +217,17 @@ void Engine::FinishUpdate()
     // Shows the time measurements in the window title
     // check sprintf formats here https://cplusplus.com/reference/cstdio/printf/
     std::stringstream ss;
+  /*  ss << gameTitle << ": Av.FPS: " << std::fixed << std::setprecision(2) << averageFps
+        << " Last sec frames: " << framesPerSecond
+        << " Last dt: " << std::fixed << std::setprecision(3) << dt
+        << " Time since startup: " << secondsSinceStartup
+        << " Frame Count: " << frameCount;
+        */
     ss << gameTitle << ": Av.FPS: " << std::fixed << std::setprecision(2) << averageFps
         << " Last sec frames: " << framesPerSecond
         << " Last dt: " << std::fixed << std::setprecision(3) << dt
         << " Time since startup: " << secondsSinceStartup
         << " Frame Count: " << frameCount;
-
     std::string titleStr = ss.str();
 
     window.get()->SetTitle(titleStr.c_str());

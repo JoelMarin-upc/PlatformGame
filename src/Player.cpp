@@ -33,12 +33,13 @@ bool Player::Start() {
 	else position = Vector2D(90, 90);
 
 	// load
-	std::unordered_map<int, std::string> aliases = { {0,"idle"},{11,"move"},{22,"jump"} };
-	anims.LoadFromTSX("Assets/Textures/PLayer2_Spritesheet.tsx", aliases);
+	texture = Engine::GetInstance().textures->Load("Assets/Textures/AnimationSheet_Character.png");
+	std::unordered_map<int, std::string> aliases = { {0,"idle"},{24,"move"},{40,"jump"},{32,"fall"},{48,"death"},{64,"throw"}};
+	anims.LoadFromTSX("Assets/Textures/AnimationSheet_Character.tsx", aliases);
 	anims.SetCurrent("idle");
 
 	//L03: TODO 2: Initialize Player parameters
-	texture = Engine::GetInstance().textures->Load("Assets/Textures/player2_spritesheet.png");
+	
 
 	// L08 TODO 5: Add physics to the player - initialize physics body
 	//Engine::GetInstance().textures->GetSize(texture, texW, texH);
@@ -100,7 +101,6 @@ void Player::CheckGround()
 		if (dist != -1) {
 			isJumping = false;
 			//isDashing = false;
-			anims.SetCurrent("idle");
 		}
 	}
 	else {
@@ -121,12 +121,13 @@ void Player::Move() {
 	// Move left/right
 	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
 		velocity.x = -speed;
-		anims.SetCurrent("move");
+		if (!isJumping) anims.SetCurrent("move");
 	}
-	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
+	else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
 		velocity.x = speed;
-		anims.SetCurrent("move");
+		if (!isJumping) anims.SetCurrent("move");
 	}
+	//else if (!isJumping)anims.SetCurrent("idle");
 }
 
 void Player::Jump() {
@@ -181,6 +182,7 @@ void Player::Throw() {
 			angle = 3*PI/2;
 			initialPos = Vector2D(0, 50);
 		}
+		anims.SetCurrent("throw");
 		spear->position = position + initialPos + Vector2D{(float) - texW / 2, (float)-texH / 2};
 		spear->Initialize(angle);
 		LOG("angle");
