@@ -94,7 +94,9 @@ void Player::CheckTimers() {
 	if (isDashing && dashTimer.ReadMSec() >= dashMS) {
 		isDashing = false;
 	}
-	
+	if (dead && deathTimer.ReadMSec() >= deathMS) {
+		Respawn();
+	}
 
 }
 
@@ -103,12 +105,14 @@ void Player::CheckGround()
 	float verticalVel = std::abs(velocity.y);
 	if (verticalVel < 0.3)
 	{
-		b2Vec2 feetPos{ position.getX(), position.getY() + 20 + texH / 2 };
+		int x, y;
+		pbody->GetPosition(x, y);
+		b2Vec2 feetPos{ x, y + 20 + texH / 2 };
 		float _;
-		int dist = pbody->RayCast(position.getX(), position.getY(), feetPos.x, feetPos.y, _, _);
-		int distLeft = pbody->RayCast(position.getX() - texW / 2, position.getY(), feetPos.x - texW / 2, feetPos.y, _, _);
-		int distRight = pbody->RayCast(position.getX() + texW / 2, position.getY(), feetPos.x + texW / 2, feetPos.y, _, _);
-		if (dist != -1) {
+		int dist = pbody->RayCast(x, y, feetPos.x, feetPos.y, _, _);
+		int distLeft = pbody->RayCast(x - texW / 2, y, feetPos.x - texW / 2, feetPos.y, _, _);
+		int distRight = pbody->RayCast(x + texW / 2, y, feetPos.x + texW / 2, feetPos.y, _, _);
+		if (dist != -1 || distLeft != -1 || distRight != -1) {
 			isJumping = false;
 			//isDashing = false;
 		}
@@ -129,6 +133,7 @@ void Player::GetPhysicsValues() {
 void Player::Move() {
 	//if (isJumping || isDashing) return;
 	// Move left/right
+	if (dead) return;
 	if (godMode) {
 		b2Transform t = Engine::GetInstance().physics->GetTransform(pbody);
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
@@ -161,7 +166,7 @@ void Player::Move() {
 
 void Player::Jump() {
 	// This function can be used for more complex jump logic if needed
-	if (godMode) return;
+	if (godMode || dead) return;
 	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN && isJumping == false) {
 		Engine::GetInstance().physics->ApplyLinearImpulseToCenter(pbody, 0.0f, -jumpForce, true);
 		//anims.SetCurrent("jump");
@@ -171,6 +176,7 @@ void Player::Jump() {
 }
 
 void Player::Throw() {
+	if (dead) return;
 	if (canThrow == true && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_DOWN) {
 		isThrow = true;
 		canThrow = false;
@@ -224,6 +230,7 @@ void Player::Throw() {
 
 void Player::Dash() {
 	if (dashed == false && canThrow == false && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LCTRL) == KEY_DOWN) {
+	//if (dead) return;
 		float x = spear->position.getX() - position.getX();
 		float y = spear->position.getY() - position.getY();
 		float aux = sqrt(pow(x, 2) + pow(y, 2));
@@ -253,7 +260,15 @@ void Player::ApplyPhysics() {
 	Engine::GetInstance().physics->SetLinearVelocity(pbody, velocity);
 }
 
+void Player::Die()
+{
+	dead = true;
+	anims.PlayOnce("death");
+	deathTimer = Timer();
+}
+
 void Player::Respawn() {
+	dead = false;
 	Vector2D* startPos = Engine::GetInstance().map->playerStartPos;
 	if (startPos) position = *startPos;
 	else position = Vector2D(90, 90);
@@ -290,6 +305,7 @@ void Player::HandleAnimations()
 			if (currentAnimation != "idle") anims.SetCurrent("idle");
 			currentAnimation = "idle";
 		}
+
 	}
 	else if (velocity.y > 0.2) {
 		anims.SetCurrent("falling");
@@ -343,6 +359,7 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 		Engine::GetInstance().physics->DestroyBody(pbody);
 		pbody = nullptr;
 		pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::STATIC);
+		//Die();
 		break;
 	case ColliderType::UNKNOWN:
 		LOG("Collision UNKNOWN");
