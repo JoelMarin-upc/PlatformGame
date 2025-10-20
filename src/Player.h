@@ -49,6 +49,7 @@ public:
 	//Declare player parameters
 	float speed = 4.0f;
 	SDL_Texture* texture = NULL;
+	bool facingRight = true;
 
 	int texW, texH;
 
@@ -56,15 +57,18 @@ public:
 	int pickCoinFxId;
 
 	// L08 TODO 5: Add physics to the player - declare a Physics body
-	bool isActive;
+	bool isActive = true;
+	Timer deathTimer;
 	PhysBody* pbody = nullptr;
 	float jumpForce = 2.f; // The force to apply when jumping
 	bool isJumping = false; // Flag to check if the player is currently jumping
 	float dashForce = 3.0f; // The force to apply when dashing
+	bool dashed = false;
 	bool isDashing = false; // Flag to check if the player is currently dashing
 	Timer dashTimer; // Dash duration until movement stops
 	float dashMS = 300.0f;
 	bool canThrow = true; // Flag to see if the player can throw the object for dashing
+	bool isThrow = false;
 	Timer throwTimer; // Throw duration until object is destroyed
 	float throwMS = 1000.0f;
 	bool spearCol = false;

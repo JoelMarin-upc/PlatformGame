@@ -30,7 +30,7 @@ bool Player::Start() {
 
 	// load
 	texture = Engine::GetInstance().textures->Load("Assets/Textures/AnimationSheet_Character.png");
-	std::unordered_map<int, std::string> aliases = { {0,"idle"},{24,"move"},{40,"jump"},{32,"fall"},{48,"death"},{64,"throw"}};
+	std::unordered_map<int, std::string> aliases = { {0,"idle"},{24,"move"},{40,"jump"},{32,"fall"},{48,"death"},{64,"throw"},{45,"falling"}};
 	anims.LoadFromTSX("Assets/Textures/AnimationSheet_Character.tsx", aliases);
 	//anims.SetCurrent("idle");
 
@@ -53,14 +53,17 @@ bool Player::Update(float dt)
 {
 	GodMode();
 	CheckTimers();
-	GetPhysicsValues();
-	CheckGround();
-	Move();
-	Jump();
-	Throw();
-	Dash();
-	ApplyPhysics();
-	HandleAnimations();
+	if (isActive) {
+		GetPhysicsValues();
+		CheckGround();
+		Move();
+		Jump();
+		Throw();
+		Dash();
+		ApplyPhysics();
+		HandleAnimations();
+	}
+	else if (deathTimer.ReadMSec() > 500.0f) Respawn();
 	Draw(dt);
 
 	return true;
@@ -77,10 +80,16 @@ void Player::GodMode()
 }
 
 void Player::CheckTimers() {
-	if (!canThrow && (throwTimer.ReadMSec() >= throwMS || spearCol)) {
-		spear->Destroy();
-		canThrow = true;
-		spearCol = false;
+	if (throwTimer.ReadMSec() >= throwMS || spearCol) {
+		if (isThrow) {
+			isThrow = false;
+			spear->Destroy();
+			spearCol = false;
+		}
+		if (!canThrow && !isJumping) {
+			canThrow = true;
+			dashed = false;
+		}
 	}
 	if (isDashing && dashTimer.ReadMSec() >= dashMS) {
 		isDashing = false;
@@ -138,10 +147,12 @@ void Player::Move() {
 	else {
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
 			velocity.x = -speed;
+			facingRight = false;
 			//if (!isJumping) anims.SetCurrent("move");
 		}
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
 			velocity.x = speed;
+			facingRight = true;
 			//if (!isJumping) anims.SetCurrent("move");
 		}
 	}
@@ -161,6 +172,7 @@ void Player::Jump() {
 
 void Player::Throw() {
 	if (canThrow == true && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_DOWN) {
+		isThrow = true;
 		canThrow = false;
 		throwTimer = Timer();
 		spear = std::dynamic_pointer_cast<Spear>(Engine::GetInstance().entityManager->CreateEntity(EntityType::SPEAR));
@@ -211,7 +223,7 @@ void Player::Throw() {
 }
 
 void Player::Dash() {
-	if (isDashing == false && canThrow == false && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LCTRL) == KEY_DOWN) {
+	if (dashed == false && canThrow == false && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LCTRL) == KEY_DOWN) {
 		float x = spear->position.getX() - position.getX();
 		float y = spear->position.getY() - position.getY();
 		float aux = sqrt(pow(x, 2) + pow(y, 2));
@@ -222,6 +234,7 @@ void Player::Dash() {
 		//anims.SetCurrent("dash");
 		anims.PlayOnce("jump");
 		isDashing = true;
+		dashed = true;
 		dashTimer = Timer();
 	}
 }
@@ -249,11 +262,12 @@ void Player::Respawn() {
 	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::DYNAMIC);	
 	pbody->listener = this;
 	pbody->ctype = ColliderType::PLAYER;
+	isActive = true;
 }
 
 void Player::HandleAnimations()
 {
-	if (!canThrow || isJumping) return;
+	if (isThrow) return;
 	/*if (isDashing) {
 		if (currentAnimation != "dash") anims.SetCurrent("dash");
 		currentAnimation = "dash";
@@ -266,13 +280,20 @@ void Player::HandleAnimations()
 		if (currentAnimation != "jump") anims.SetCurrent("jump");
 		currentAnimation = "jump";
 	}
-	else */if (abs(velocity.x) > 0.2) {
-		if (currentAnimation != "move") anims.SetCurrent("move");
-		currentAnimation = "move";
+	else */
+	if (!isJumping) {
+		if (abs(velocity.x) > 0.2) {
+			if (currentAnimation != "move") anims.SetCurrent("move");
+			currentAnimation = "move";
+		}
+		else {
+			if (currentAnimation != "idle") anims.SetCurrent("idle");
+			currentAnimation = "idle";
+		}
 	}
-	else {
-		if (currentAnimation != "idle") anims.SetCurrent("idle");
-		currentAnimation = "idle";
+	else if (velocity.y > 0.2) {
+		anims.SetCurrent("falling");
+		currentAnimation = "falling";
 	}
 }
 
@@ -286,6 +307,7 @@ void Player::Draw(float dt) {
 	pbody->GetPosition(x, y);
 	position.setX((float)x);
 	position.setY((float)y);
+	//if (!facingRight) SDL_RenderTextureRotated(Engine::GetInstance().render->renderer, texture, NULL, NULL,0,NULL, SDL_FLIP_HORIZONTAL);
 	Engine::GetInstance().render->DrawTexture(texture, x - texW / 2, y - texH / 2, &animFrame);
 }
 
@@ -316,7 +338,11 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 		break;
 	case ColliderType::DEATHZONE:
 		anims.PlayOnce("death");
-		Respawn();
+		isActive = false;
+		deathTimer = Timer();
+		Engine::GetInstance().physics->DestroyBody(pbody);
+		pbody = nullptr;
+		pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::STATIC);
 		break;
 	case ColliderType::UNKNOWN:
 		LOG("Collision UNKNOWN");

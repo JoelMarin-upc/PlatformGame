@@ -39,7 +39,7 @@ private:
 
 
 	SDL_Texture* texture;
-	int texW, texH;
+	int texW=16, texH=16;
 
 public:
 	void Initialize(float angle);
@@ -52,4 +52,5 @@ private:
 	b2Vec2 velocity;
 
 	PhysBody* pbody;
+	AnimationSet anims;
 };

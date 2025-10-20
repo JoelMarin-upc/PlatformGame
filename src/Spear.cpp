@@ -54,6 +54,7 @@ bool Spear::Destroy()
 
 void Spear::Move() {
 	velocity.y += spearGravity;
+	anims.SetCurrent("move");
 }
 
 void Spear::GetPhysicsValues() {
@@ -65,11 +66,14 @@ void Spear::ApplyPhysics() {
 }
 
 void Spear::Draw(float dt) {
+	anims.Update(dt);
+	const SDL_Rect& animFrame = anims.GetCurrentFrame();
 	int x, y;
 	pbody->GetPosition(x, y);
 	position.setX((float)x);
 	position.setY((float)y);
-	Engine::GetInstance().render->DrawTexture(texture, x - texW / 2, y - texH / 2);
+	Engine::GetInstance().render->DrawTexture(texture, x - texW / 2, y - texH / 2, &animFrame);
+	
 }
 
 void Spear::OnCollision(PhysBody* physA, PhysBody* physB) {
@@ -89,8 +93,9 @@ void Spear::OnCollision(PhysBody* physA, PhysBody* physB) {
 
 void Spear::Initialize(float angle) {
 	initialAngle = angle;
-	texture = Engine::GetInstance().textures->Load("Assets/Textures/goldCoin_copy.png");
-	Engine::GetInstance().textures.get()->GetSize(texture, texW, texH);
+	texture = Engine::GetInstance().textures->Load("Assets/Textures/Water Effect and Bullet 16x16.png");
+	std::unordered_map<int, std::string> aliases = { {262,"move"} };
+	anims.LoadFromTSX("Assets/Textures/Water Effect and Bullet 16x16.tsx", aliases);
 	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX() + texH / 2, (int)position.getY() + texH / 2, texH / 2, bodyType::DYNAMIC);
 	pbody->ctype = ColliderType::SPEAR;
 	pbody->listener = this;
