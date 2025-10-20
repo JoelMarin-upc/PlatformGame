@@ -32,7 +32,7 @@ bool Player::Start() {
 	texture = Engine::GetInstance().textures->Load("Assets/Textures/AnimationSheet_Character.png");
 	std::unordered_map<int, std::string> aliases = { {0,"idle"},{24,"move"},{40,"jump"},{32,"fall"},{48,"death"},{64,"throw"}};
 	anims.LoadFromTSX("Assets/Textures/AnimationSheet_Character.tsx", aliases);
-	anims.SetCurrent("idle");
+	//anims.SetCurrent("idle");
 
 	//L03: TODO 2: Initialize Player parameters
 	
@@ -60,6 +60,7 @@ bool Player::Update(float dt)
 	Throw();
 	Dash();
 	ApplyPhysics();
+	HandleAnimations();
 	Draw(dt);
 
 	return true;
@@ -123,29 +124,25 @@ void Player::Move() {
 		b2Transform t = Engine::GetInstance().physics->GetTransform(pbody);
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
 			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x - godModeSpeed, t.p.y }, t.q);
-			anims.SetCurrent("move");
 		}
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
 			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x + godModeSpeed, t.p.y }, t.q);
-			anims.SetCurrent("move");
 		}
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
 			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x, t.p.y - godModeSpeed }, t.q);
-			anims.SetCurrent("move");
 		}
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) {
 			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x, t.p.y + godModeSpeed }, t.q);
-			anims.SetCurrent("move");
 		}
 	}
 	else {
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
 			velocity.x = -speed;
-			if (!isJumping) anims.SetCurrent("move");
+			//if (!isJumping) anims.SetCurrent("move");
 		}
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
 			velocity.x = speed;
-			if (!isJumping) anims.SetCurrent("move");
+			//if (!isJumping) anims.SetCurrent("move");
 		}
 	}
 	//else if (!isJumping)anims.SetCurrent("idle");
@@ -156,7 +153,8 @@ void Player::Jump() {
 	if (godMode) return;
 	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN && isJumping == false) {
 		Engine::GetInstance().physics->ApplyLinearImpulseToCenter(pbody, 0.0f, -jumpForce, true);
-		anims.SetCurrent("jump");
+		//anims.SetCurrent("jump");
+		anims.PlayOnce("jump");
 		isJumping = true;
 	}
 }
@@ -204,7 +202,8 @@ void Player::Throw() {
 			angle = 3*PI/2;
 			initialPos = Vector2D(0, 50);
 		}
-		anims.SetCurrent("throw");
+		//anims.SetCurrent("throw");
+		anims.PlayOnce("throw");
 		spear->position = position + initialPos + Vector2D{(float) - texW / 2, (float)-texH / 2};
 		spear->Initialize(angle);
 		LOG("angle");
@@ -219,8 +218,8 @@ void Player::Dash() {
 		x = x / aux;
 		y = y / aux;
 		Engine::GetInstance().physics->SetLinearVelocity(pbody,0, 0);
-;		Engine::GetInstance().physics->ApplyLinearImpulseToCenter(pbody, x * dashForce, y * dashForce, true);
-		anims.SetCurrent("dash");
+		Engine::GetInstance().physics->ApplyLinearImpulseToCenter(pbody, x * dashForce, y * dashForce, true);
+		//anims.SetCurrent("dash");
 		isDashing = true;
 		dashTimer = Timer();
 	}
@@ -249,6 +248,31 @@ void Player::Respawn() {
 	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::DYNAMIC);	
 	pbody->listener = this;
 	pbody->ctype = ColliderType::PLAYER;
+}
+
+void Player::HandleAnimations()
+{
+	if (!canThrow || isJumping) return;
+	/*if (isDashing) {
+		if (currentAnimation != "dash") anims.SetCurrent("dash");
+		currentAnimation = "dash";
+	}
+	else if (!canThrow) {
+		if (currentAnimation != "throw") anims.SetCurrent("throw");
+		currentAnimation = "throw";
+	}
+	else */if (abs(velocity.y) > 0.2) {
+		if (currentAnimation != "jump") anims.SetCurrent("jump");
+		currentAnimation = "jump";
+	}
+	else if (abs(velocity.x) > 0.2) {
+		if (currentAnimation != "move") anims.SetCurrent("move");
+		currentAnimation = "move";
+	}
+	else {
+		if (currentAnimation != "idle") anims.SetCurrent("idle");
+		currentAnimation = "idle";
+	}
 }
 
 void Player::Draw(float dt) {

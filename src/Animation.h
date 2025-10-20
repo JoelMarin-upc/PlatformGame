@@ -40,6 +40,7 @@ public:
 
     // manage animations
     void SetCurrent(const std::string& name);
+    void PlayOnce(const std::string& name);
     void Update(float dtSeconds);
     const SDL_Rect& GetCurrentFrame() const;
     const std::string& GetCurrentName() const;
@@ -50,6 +51,8 @@ private:
     int tileW_ = 0, tileH_ = 0, columns_ = 0;
     std::unordered_map<std::string, Animation> clips_;
     std::string currentName_;
+    bool playingOnce;
+    std::string previousName_;
 
     static SDL_Rect TileIdToRect(int tileid, int columns, int tileW, int tileH);
 };

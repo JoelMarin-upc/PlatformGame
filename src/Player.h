@@ -41,6 +41,7 @@ private:
 	void Dash();
 	void ApplyPhysics();
 	void Respawn();
+	void HandleAnimations();
 	void Draw(float dt);
 
 public:
@@ -68,7 +69,7 @@ public:
 	bool spearCol = false;
 	bool godMode = false;
 	float godModeSpeed = 0.1f;
-	
+	std::string currentAnimation = "";
 
 private:
 	std::shared_ptr<Spear> spear;

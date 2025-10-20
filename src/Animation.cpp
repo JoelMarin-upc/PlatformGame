@@ -124,11 +124,30 @@ void AnimationSet::SetCurrent(const std::string& name) {
     if (currentName_ == name) return; // no change
     if (!Has(name)) return;           // unknown name
     currentName_ = name;
+    playingOnce = false;
+    clips_[currentName_].SetLoop(true);
+    clips_[currentName_].Reset();
+}
+
+void AnimationSet::PlayOnce(const std::string& name)
+{
+    if (!Has(name)) return;           // unknown name
+    previousName_ = currentName_;
+    currentName_ = name;
+    playingOnce = true;
+    clips_[currentName_].SetLoop(false);
     clips_[currentName_].Reset();
 }
 
 void AnimationSet::Update(float dtSeconds) {
-    if (Has(currentName_)) clips_[currentName_].Update(dtSeconds);
+    if (Has(currentName_))
+    {
+        clips_[currentName_].Update(dtSeconds);
+        if (playingOnce && clips_[currentName_].HasFinishedOnce())
+        {
+            SetCurrent(previousName_);
+        }
+    }
 }
 
 const SDL_Rect& AnimationSet::GetCurrentFrame() const {
