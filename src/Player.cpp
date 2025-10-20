@@ -220,6 +220,7 @@ void Player::Dash() {
 		Engine::GetInstance().physics->SetLinearVelocity(pbody,0, 0);
 		Engine::GetInstance().physics->ApplyLinearImpulseToCenter(pbody, x * dashForce, y * dashForce, true);
 		//anims.SetCurrent("dash");
+		anims.PlayOnce("jump");
 		isDashing = true;
 		dashTimer = Timer();
 	}
@@ -261,11 +262,11 @@ void Player::HandleAnimations()
 		if (currentAnimation != "throw") anims.SetCurrent("throw");
 		currentAnimation = "throw";
 	}
-	else */if (abs(velocity.y) > 0.2) {
+	else if (abs(velocity.y) > 0.2) {
 		if (currentAnimation != "jump") anims.SetCurrent("jump");
 		currentAnimation = "jump";
 	}
-	else if (abs(velocity.x) > 0.2) {
+	else */if (abs(velocity.x) > 0.2) {
 		if (currentAnimation != "move") anims.SetCurrent("move");
 		currentAnimation = "move";
 	}
@@ -314,6 +315,7 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 		spearCol = true;
 		break;
 	case ColliderType::DEATHZONE:
+		anims.PlayOnce("death");
 		Respawn();
 		break;
 	case ColliderType::UNKNOWN:

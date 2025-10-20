@@ -35,6 +35,8 @@
    <frame tileid="43" duration="100"/>
    <frame tileid="44" duration="100"/>
    <frame tileid="45" duration="100"/>
+   <frame tileid="46" duration="100"/>
+   <frame tileid="47" duration="100"/>
   </animation>
  </tile>
  <tile id="48">
