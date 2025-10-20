@@ -51,7 +51,7 @@ private:
     int tileW_ = 0, tileH_ = 0, columns_ = 0;
     std::unordered_map<std::string, Animation> clips_;
     std::string currentName_;
-    bool playingOnce;
+    bool playingOnce = false;
     std::string previousName_;
 
     static SDL_Rect TileIdToRect(int tileid, int columns, int tileW, int tileH);

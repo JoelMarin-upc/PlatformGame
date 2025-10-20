@@ -132,7 +132,7 @@ void AnimationSet::SetCurrent(const std::string& name) {
 void AnimationSet::PlayOnce(const std::string& name)
 {
     if (!Has(name)) return;           // unknown name
-    previousName_ = currentName_;
+    if (!playingOnce) previousName_ = currentName_;
     currentName_ = name;
     playingOnce = true;
     clips_[currentName_].SetLoop(false);
