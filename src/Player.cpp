@@ -229,7 +229,7 @@ void Player::Throw() {
 }
 
 void Player::Dash() {
-	if (dashed == false && canThrow == false && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LCTRL) == KEY_DOWN) {
+	if (dashed == false && isThrow == true && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LCTRL) == KEY_DOWN) {
 	//if (dead) return;
 		float x = spear->position.getX() - position.getX();
 		float y = spear->position.getY() - position.getY();
