@@ -48,7 +48,7 @@ public:
 	float spearGravity = 0.4f;
 
 private:
-	float velocityMagnitude = 13.0f;
+	float velocityMagnitude = 12.0f;
 	b2Vec2 velocity;
 
 	PhysBody* pbody;

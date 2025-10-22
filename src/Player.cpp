@@ -28,6 +28,8 @@ bool Player::Awake() {
 
 bool Player::Start() {
 
+	respawnPos = *Engine::GetInstance().map->playerStartPos;
+
 	// load
 	texture = Engine::GetInstance().textures->Load("Assets/Textures/AnimationSheet_Character.png");
 	std::unordered_map<int, std::string> aliases = { {0,"idle"},{24,"move"},{40,"jump"},{32,"fall"},{48,"death"},{64,"throw"},{45,"falling"}};
@@ -63,7 +65,6 @@ bool Player::Update(float dt)
 		ApplyPhysics();
 		HandleAnimations();
 	}
-	else if (deathTimer.ReadMSec() > 500.0f) Respawn();
 	Draw(dt);
 
 	return true;
@@ -94,7 +95,7 @@ void Player::CheckTimers() {
 	if (isDashing && dashTimer.ReadMSec() >= dashMS) {
 		isDashing = false;
 	}
-	if (dead && deathTimer.ReadMSec() >= deathMS) {
+	if (!isActive && deathTimer.ReadMSec() >= deathMS) {
 		Respawn();
 	}
 
@@ -133,29 +134,29 @@ void Player::GetPhysicsValues() {
 void Player::Move() {
 	//if (isJumping || isDashing) return;
 	// Move left/right
-	if (dead) return;
+	//if (dead) return;
 	if (godMode) {
 		b2Transform t = Engine::GetInstance().physics->GetTransform(pbody);
-		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT) {
 			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x - godModeSpeed, t.p.y }, t.q);
 		}
-		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT) {
 			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x + godModeSpeed, t.p.y }, t.q);
 		}
-		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT) {
 			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x, t.p.y - godModeSpeed }, t.q);
 		}
-		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) {
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT) {
 			Engine::GetInstance().physics->MoveBody(pbody, b2Vec2{ t.p.x, t.p.y + godModeSpeed }, t.q);
 		}
 	}
 	else {
-		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT) {
 			velocity.x = -speed;
 			facingRight = false;
 			//if (!isJumping) anims.SetCurrent("move");
 		}
-		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT) {
 			velocity.x = speed;
 			facingRight = true;
 			//if (!isJumping) anims.SetCurrent("move");
@@ -166,7 +167,7 @@ void Player::Move() {
 
 void Player::Jump() {
 	// This function can be used for more complex jump logic if needed
-	if (godMode || dead) return;
+	if (godMode) return;
 	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN && isJumping == false) {
 		Engine::GetInstance().physics->ApplyLinearImpulseToCenter(pbody, 0.0f, -jumpForce, true);
 		//anims.SetCurrent("jump");
@@ -176,20 +177,20 @@ void Player::Jump() {
 }
 
 void Player::Throw() {
-	if (dead) return;
-	if (canThrow == true && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_DOWN) {
+	//if (dead) return;
+	if (canThrow == true && Engine::GetInstance().input->GetKey(SDL_SCANCODE_X) == KEY_DOWN) {
 		isThrow = true;
 		canThrow = false;
 		throwTimer = Timer();
 		spear = std::dynamic_pointer_cast<Spear>(Engine::GetInstance().entityManager->CreateEntity(EntityType::SPEAR));
 		float angle = 0;
 		Vector2D initialPos = Vector2D(50, 0);
-		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_D) == KEY_REPEAT) {
-			if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
+		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT) {
+			if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT) {
 				angle = PI/4;
 				initialPos = Vector2D(0,-50);
 			}
-			else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) {
+			else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT) {
 				angle = 7 * PI / 4;
 				initialPos = Vector2D(50,0);
 			}
@@ -198,12 +199,12 @@ void Player::Throw() {
 				initialPos = Vector2D(50,0);
 			}
 		}
-		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT) {
-			if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
+		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT) {
+			if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT) {
 				angle = 3*PI/4;
 				initialPos = Vector2D(0,-50);
 			}
-			else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) {
+			else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT) {
 				angle = 5*PI/4;
 				initialPos = Vector2D(0,50);
 			}
@@ -212,11 +213,11 @@ void Player::Throw() {
 				initialPos = Vector2D(-50,0);
 			}
 		}
-		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) {
+		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT) {
 			angle = PI/2;
 			initialPos = Vector2D(0, -50);
 		}
-		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_S) == KEY_REPEAT) {
+		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT) {
 			angle = 3*PI/2;
 			initialPos = Vector2D(0, 50);
 		}
@@ -229,7 +230,7 @@ void Player::Throw() {
 }
 
 void Player::Dash() {
-	if (dashed == false && isThrow == true && Engine::GetInstance().input->GetKey(SDL_SCANCODE_LCTRL) == KEY_DOWN) {
+	if (dashed == false && isThrow == true && Engine::GetInstance().input->GetKey(SDL_SCANCODE_Z) == KEY_DOWN) {
 	//if (dead) return;
 		float x = spear->position.getX() - position.getX();
 		float y = spear->position.getY() - position.getY();
@@ -260,25 +261,25 @@ void Player::ApplyPhysics() {
 	Engine::GetInstance().physics->SetLinearVelocity(pbody, velocity);
 }
 
-/*void Player::Die()
+void Player::Die()
 {
-	dead = true;
 	anims.PlayOnce("death");
-	deathTimer = Timer();
+		isActive = false;
+		deathTimer = Timer();
+		Engine::GetInstance().physics->DestroyBody(pbody);
+		pbody = nullptr;
+		pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::STATIC);
 }
-*/
 
 void Player::Respawn() {
-	dead = false;
-	Vector2D* startPos = Engine::GetInstance().map->playerStartPos;
-	if (startPos) position = *startPos;
-	else position = Vector2D(90, 90);
+	//dead = false;
+	isActive = true;
+	position = respawnPos;
 	Engine::GetInstance().physics->DestroyBody(pbody);
 	pbody = nullptr;
 	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::DYNAMIC);	
 	pbody->listener = this;
 	pbody->ctype = ColliderType::PLAYER;
-	isActive = true;
 }
 
 void Player::HandleAnimations()
@@ -354,13 +355,10 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 		spearCol = true;
 		break;
 	case ColliderType::DEATHZONE:
-		anims.PlayOnce("death");
-		isActive = false;
-		deathTimer = Timer();
-		Engine::GetInstance().physics->DestroyBody(pbody);
-		pbody = nullptr;
-		pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX(), (int)position.getY(), texW / 2, bodyType::STATIC);
-		//Die();
+		Die();
+		break;
+	case ColliderType::RESPAWNPOINT:
+		respawnPos = position;
 		break;
 	case ColliderType::UNKNOWN:
 		LOG("Collision UNKNOWN");

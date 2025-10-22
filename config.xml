@@ -23,4 +23,7 @@
 	  <map path="Assets/Maps/" name="MapTemplate1.tmx"/>
 	</maps>
   </scene>
+  <player>
+    <data initialPos="" speed="" animationSets=""/>
+  </player>
 </config>

@@ -208,12 +208,19 @@ bool Map::Load(std::string path, std::string fileName)
                 for (int i = 0; i < mapData.height; i++) {
                     for (int j = 0; j < mapData.width; j++) {
                         int gid = mapLayer->Get(i, j);
-                        Vector2D mapCoord = MapToWorld(i, j);
-                        if (gid == 49) {
-                            PhysBody* c1 = Engine::GetInstance().physics->CreateRectangle(mapCoord.getX()+ mapData.tileWidth/2, mapCoord.getY()+ mapData.tileHeight/2, mapData.tileWidth, mapData.tileHeight, STATIC);
+                        Vector2D mapCoord = MapToWorld(i, j);            
+                        if (gid == 626) {
+                            PhysBody* c1 = Engine::GetInstance().physics->CreateRectangle(mapCoord.getX() + mapData.tileWidth / 2, mapCoord.getY() + mapData.tileHeight / 2, mapData.tileWidth, mapData.tileHeight, STATIC);
                             c1->ctype = ColliderType::DEATHZONE;
                         }
-                        else if (gid == 50) playerStartPos = new Vector2D(mapCoord);
+                        else if (gid == 627) {
+                            PhysBody* c1 = Engine::GetInstance().physics->CreateRectangleSensor(mapCoord.getX() + mapData.tileWidth / 2, mapCoord.getY() + mapData.tileHeight / 2, mapData.tileWidth, mapData.tileHeight, STATIC);
+                            if (!spawnPointSet) {
+                                playerStartPos = new Vector2D(mapCoord);
+                                spawnPointSet = true;
+                            }
+                            c1->ctype = ColliderType::RESPAWNPOINT;
+                        }
                     }
                 }
             }

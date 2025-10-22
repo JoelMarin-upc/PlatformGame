@@ -152,6 +152,7 @@ public:
 
 private:
     bool mapLoaded;
+    bool spawnPointSet = false;
     // L06: DONE 1: Declare a variable data of the struct MapData
     MapData mapData;
 };

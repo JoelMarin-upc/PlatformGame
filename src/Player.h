@@ -48,7 +48,7 @@ private:
 public:
 
 	//Declare player parameters
-	float speed = 4.0f;
+	float speed = 3.0f;
 	SDL_Texture* texture = NULL;
 	bool facingRight = true;
 
@@ -61,9 +61,9 @@ public:
 	bool isActive = true;
 	Timer deathTimer;
 	PhysBody* pbody = nullptr;
-	float jumpForce = 2.f; // The force to apply when jumping
+	float jumpForce = 1.6f; // The force to apply when jumping
 	bool isJumping = false; // Flag to check if the player is currently jumping
-	float dashForce = 3.0f; // The force to apply when dashing
+	float dashForce = 2.0f; // The force to apply when dashing
 	bool dashed = false;
 	bool isDashing = false; // Flag to check if the player is currently dashing
 	Timer dashTimer; // Dash duration until movement stops
@@ -77,7 +77,9 @@ public:
 	float godModeSpeed = 0.1f;
 	std::string currentAnimation = "";
 	float deathMS = 600.0f;
-	bool dead = false;
+	//bool dead = false;
+
+	Vector2D respawnPos;
 
 private:
 	std::shared_ptr<Spear> spear;
