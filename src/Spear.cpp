@@ -96,7 +96,7 @@ void Spear::Initialize(float angle) {
 	texture = Engine::GetInstance().textures->Load("Assets/Textures/Water Effect and Bullet 16x16.png");
 	std::unordered_map<int, std::string> aliases = { {262,"move"} };
 	anims.LoadFromTSX("Assets/Textures/Water Effect and Bullet 16x16.tsx", aliases);
-	pbody = Engine::GetInstance().physics->CreateCircle((int)position.getX() + texH / 2, (int)position.getY() + texH / 2, texH / 2, bodyType::DYNAMIC);
+	pbody = Engine::GetInstance().physics->CreateRectangleSensor((int)position.getX() + texH / 2, (int)position.getY() + texH / 2, texH / 2, texW / 2, bodyType::DYNAMIC);
 	pbody->ctype = ColliderType::SPEAR;
 	pbody->listener = this;
 	velocity = { velocityMagnitude * cos(initialAngle),-velocityMagnitude * sin(initialAngle) };

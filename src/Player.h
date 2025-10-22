@@ -72,6 +72,7 @@ public:
 	bool isThrow = false;
 	Timer throwTimer; // Throw duration until object is destroyed
 	float throwMS = 1000.0f;
+	float spearOffset = 25.0f;
 	bool spearCol = false;
 	bool godMode = false;
 	float godModeSpeed = 0.1f;

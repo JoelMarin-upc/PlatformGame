@@ -184,42 +184,42 @@ void Player::Throw() {
 		throwTimer = Timer();
 		spear = std::dynamic_pointer_cast<Spear>(Engine::GetInstance().entityManager->CreateEntity(EntityType::SPEAR));
 		float angle = 0;
-		Vector2D initialPos = Vector2D(50, 0);
+		Vector2D initialPos = Vector2D(spearOffset, 0);
 		if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT) {
 			if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT) {
 				angle = PI/4;
-				initialPos = Vector2D(0,-50);
+				initialPos = Vector2D(0,-spearOffset);
 			}
 			else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT) {
 				angle = 7 * PI / 4;
-				initialPos = Vector2D(50,0);
+				initialPos = Vector2D(spearOffset,0);
 			}
 			else {
 				angle = 0;
-				initialPos = Vector2D(50,0);
+				initialPos = Vector2D(spearOffset,0);
 			}
 		}
 		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT) {
 			if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT) {
 				angle = 3*PI/4;
-				initialPos = Vector2D(0,-50);
+				initialPos = Vector2D(0,-spearOffset);
 			}
 			else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT) {
 				angle = 5*PI/4;
-				initialPos = Vector2D(0,50);
+				initialPos = Vector2D(0, spearOffset);
 			}
 			else {
 				angle = PI;
-				initialPos = Vector2D(-50,0);
+				initialPos = Vector2D(-spearOffset,0);
 			}
 		}
 		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_UP) == KEY_REPEAT) {
 			angle = PI/2;
-			initialPos = Vector2D(0, -50);
+			initialPos = Vector2D(0, -spearOffset);
 		}
 		else if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT) {
 			angle = 3*PI/2;
-			initialPos = Vector2D(0, 50);
+			initialPos = Vector2D(0, spearOffset);
 		}
 		//anims.SetCurrent("throw");
 		anims.PlayOnce("throw");
