@@ -83,6 +83,10 @@ void Spear::OnCollision(PhysBody* physA, PhysBody* physB) {
 		velocity = { 0.0f,0.0f };
 		spearGravity = 0.0f;
 		break;
+	case ColliderType::DEATHZONE:
+		velocity = { 0.0f,0.0f };
+		spearGravity = 0.0f;
+		break;
 	case ColliderType::UNKNOWN:
 		break;
 	default:
