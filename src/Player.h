@@ -47,6 +47,9 @@ private:
 
 public:
 
+	const char* texturePath;
+	const char* animationsPath;
+
 	//Declare player parameters
 	float speed = 3.0f;
 	SDL_Texture* texture = NULL;

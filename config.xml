@@ -22,8 +22,9 @@
 	  <map path="Assets/Maps/" name="MapTemplate.tmx"/>
 	  <map path="Assets/Maps/" name="MapTemplate1.tmx"/>
 	</maps>
+	<helpText path="Assets/Textures/keys.png"/>
+	<music path="Assets/Audio/Music/level-iv-339695.wav"/>
+	<player speed="3.0" animationSet="Assets/Textures/AnimationSheet_Character.tsx" texture="Assets/Textures/AnimationSheet_Character.png"/>
   </scene>
-  <player>
-    <data initialPos="" speed="" animationSets=""/>
-  </player>
+  
 </config>

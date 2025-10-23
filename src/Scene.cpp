@@ -38,7 +38,7 @@ bool Scene::Awake()
 // Called before the first frame
 bool Scene::Start()
 {
-
+	helpTexture = Engine::GetInstance().textures->Load(configParameters.child("helpText").attribute("path").as_string());
 	LoadMap();
 	
 	return true;
@@ -53,6 +53,8 @@ bool Scene::PreUpdate()
 // Called each loop iteration
 bool Scene::Update(float dt)
 {
+	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_H) == KEY_DOWN) showHelp = !showHelp;
+	ShowHelp();
 	//L03 TODO 3: Make the camera movement independent of framerate
 	/*float camSpeed = 1;
 
@@ -101,6 +103,9 @@ void Scene::LoadScene()
 	
 	auto playerEntity = Engine::GetInstance().entityManager->CreateEntity(EntityType::PLAYER);
 	player = std::dynamic_pointer_cast<Player>(playerEntity);
+	player->speed = configParameters.child("player").attribute("speed").as_float();
+	player->texturePath = configParameters.child("player").attribute("texture").as_string();
+	player->animationsPath = configParameters.child("player").attribute("animationSet").as_string();
 	Engine::GetInstance().render->follow = playerEntity;
 	//L08: TODO 4: Create a new item using the entity manager and set the position to (200, 672) to test
 	//std::shared_ptr<Item> item = std::dynamic_pointer_cast<Item>(Engine::GetInstance().entityManager->CreateEntity(EntityType::ITEM));
@@ -111,7 +116,7 @@ void Scene::LoadScene()
 void Scene::LoadMap()
 {
 	auto currentScene = GetCurrentScene();
-	Engine::GetInstance().audio->PlayMusic("Assets/Audio/Music/level-iv-339695.wav");
+	Engine::GetInstance().audio->PlayMusic(configParameters.child("music").attribute("path").as_string());
 	//L06 TODO 3: Call the function to load the map. 
 	Engine::GetInstance().map->CleanUp();
 	Engine::GetInstance().map->Load(currentScene.mapPath, currentScene.mapName);
@@ -139,4 +144,10 @@ void Scene::NextScene()
 	if (currentScene >= scenes.size()) currentScene = 0;
 	LoadScene();
 	LoadMap();
+}
+
+void Scene::ShowHelp()
+{
+	if (!showHelp) return;
+	Engine::GetInstance().render->DrawTexture(helpTexture, -Engine::GetInstance().render->camera.x, -Engine::GetInstance().render->camera.y);
 }
