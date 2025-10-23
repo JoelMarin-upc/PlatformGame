@@ -361,6 +361,9 @@ void Player::OnCollision(PhysBody* physA, PhysBody* physB) {
 	case ColliderType::RESPAWNPOINT:
 		respawnPos = position;
 		break;
+	case ColliderType::NEXTLEVEL:
+		Engine::GetInstance().scene->NextScene();
+		break;
 	case ColliderType::UNKNOWN:
 		LOG("Collision UNKNOWN");
 		break;

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="102" height="28" tilewidth="20" tileheight="20" infinite="0" nextlayerid="11" nextobjectid="61">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="102" height="28" tilewidth="20" tileheight="20" infinite="0" nextlayerid="12" nextobjectid="61">
  <tileset firstgid="1" name="AutumnHillsTileset_8" tilewidth="20" tileheight="20" tilecount="625" columns="25">
   <image source="AutumnHillsTileset_8.png" width="500" height="500"/>
  </tileset>
- <tileset firstgid="626" name="metadata" tilewidth="20" tileheight="20" tilecount="2" columns="2">
-  <image source="metadata.png" width="40" height="20"/>
+ <tileset firstgid="626" name="metadata" tilewidth="20" tileheight="20" tilecount="3" columns="3">
+  <image source="metadata.png" width="60" height="20"/>
  </tileset>
  <layer id="10" name="back" width="102" height="28">
   <properties>
-   <property name="Draw" type="bool" value="true"/>
+   <property name="Draw" type="bool" value="false"/>
   </properties>
   <data>
    <tile gid="326"/>
@@ -2869,6 +2869,7 @@
    <tile gid="326"/>
   </data>
  </layer>
+ <imagelayer id="11" name="Capa de Imagen 1"/>
  <layer id="6" name="Map" width="102" height="28">
   <properties>
    <property name="Draw" type="bool" value="true"/>
@@ -10842,7 +10843,7 @@
    <tile/>
    <tile/>
    <tile/>
-   <tile/>
+   <tile gid="628"/>
    <tile/>
    <tile/>
    <tile/>

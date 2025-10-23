@@ -53,7 +53,6 @@ bool Scene::PreUpdate()
 // Called each loop iteration
 bool Scene::Update(float dt)
 {
-	if (Engine::GetInstance().input->GetKey(SDL_SCANCODE_M) == KEY_DOWN) NextScene();
 	//L03 TODO 3: Make the camera movement independent of framerate
 	/*float camSpeed = 1;
 

@@ -36,7 +36,8 @@ bool Map::Update(float dt)
     bool ret = true;
 
     if (mapLoaded) {
-        
+        bgtexture = Engine::GetInstance().textures->Load("Assets/Textures/AutumnHills_Parallax05_16.png");
+        Engine::GetInstance().render->DrawTexture(bgtexture,-Engine::GetInstance().render->camera.x, Engine::GetInstance().render->camera.y);
         // L07 TODO 5: Prepare the loop to draw all tiles in a layer + DrawTexture()
         // iterate all tiles in a layer
         for (const auto& mapLayer : mapData.layers) {
@@ -220,6 +221,10 @@ bool Map::Load(std::string path, std::string fileName)
                                 spawnPointSet = true;
                             }
                             c1->ctype = ColliderType::RESPAWNPOINT;
+                        }
+                        else if (gid == 628) {
+                            PhysBody* c1 = Engine::GetInstance().physics->CreateRectangleSensor(mapCoord.getX() + mapData.tileWidth / 2, mapCoord.getY() + mapData.tileHeight / 2, mapData.tileWidth, mapData.tileHeight, STATIC);
+                            c1->ctype = ColliderType::NEXTLEVEL;
                         }
                     }
                 }

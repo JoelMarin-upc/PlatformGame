@@ -146,6 +146,7 @@ public:
     bool LoadProperties(pugi::xml_node& node, Properties& properties);
 
 public: 
+    SDL_Texture* bgtexture;
     std::string mapFileName;
     std::string mapPath;
     Vector2D* playerStartPos = nullptr;
