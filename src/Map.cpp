@@ -36,8 +36,8 @@ bool Map::Update(float dt)
     bool ret = true;
 
     if (mapLoaded) {
-        bgtexture = Engine::GetInstance().textures->Load("Assets/Textures/AutumnHills_Parallax05_16.png");
-        Engine::GetInstance().render->DrawTexture(bgtexture,-Engine::GetInstance().render->camera.x, Engine::GetInstance().render->camera.y);
+        bgtexture = Engine::GetInstance().textures->Load("Assets/Maps/AutumnHills_Parallax05_162.png");
+        Engine::GetInstance().render->DrawTexture(bgtexture,-Engine::GetInstance().render->camera.x, -Engine::GetInstance().render->camera.y);
         // L07 TODO 5: Prepare the loop to draw all tiles in a layer + DrawTexture()
         // iterate all tiles in a layer
         for (const auto& mapLayer : mapData.layers) {
