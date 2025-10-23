@@ -87,10 +87,11 @@ void Player::CheckTimers() {
 			spear->Destroy();
 			spearCol = false;
 		}
-		if (!canThrow && !isJumping) {
-			canThrow = true;
-			dashed = false;
-		}
+	}
+	if (throwCDBack && !isThrow) {
+		canThrow = true;
+		dashed = false;
+		throwCDBack = false;
 	}
 	if (isDashing && dashTimer.ReadMSec() >= dashMS) {
 		isDashing = false;
@@ -115,6 +116,7 @@ void Player::CheckGround()
 		int distRight = pbody->RayCast(x + texW / 2, y, feetPos.x + texW / 2, feetPos.y, _, _);
 		if (dist != -1 || distLeft != -1 || distRight != -1) {
 			isJumping = false;
+			if (!canThrow) throwCDBack = true;
 			//isDashing = false;
 		}
 	}
@@ -325,8 +327,7 @@ void Player::Draw(float dt) {
 	pbody->GetPosition(x, y);
 	position.setX((float)x);
 	position.setY((float)y);
-	//if (!facingRight) SDL_RenderTextureRotated(Engine::GetInstance().render->renderer, texture, NULL, NULL,0,NULL, SDL_FLIP_HORIZONTAL);
-	Engine::GetInstance().render->DrawTexture(texture, x - texW / 2, y - texH / 2, &animFrame);
+	Engine::GetInstance().render->DrawTexture(texture, x - texW / 2, y - texH / 2, &animFrame, 1);
 }
 
 bool Player::CleanUp()

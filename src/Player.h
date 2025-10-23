@@ -70,6 +70,7 @@ public:
 	float dashMS = 300.0f;
 	bool canThrow = true; // Flag to see if the player can throw the object for dashing
 	bool isThrow = false;
+	bool throwCDBack = false;
 	Timer throwTimer; // Throw duration until object is destroyed
 	float throwMS = 1000.0f;
 	float spearOffset = 25.0f;
