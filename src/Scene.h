@@ -42,6 +42,7 @@ public:
 	void LoadAllScenes();
 	SceneData GetCurrentScene();
 	void NextScene();
+	void ShowHelp();
 
 private:
 
@@ -49,4 +50,6 @@ private:
 	std::shared_ptr<Player> player;
 	std::vector<SceneData> scenes;
 	int currentScene;
+	bool showHelp = false;
+	SDL_Texture* helpTexture;
 };

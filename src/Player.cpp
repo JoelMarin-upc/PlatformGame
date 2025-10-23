@@ -31,9 +31,9 @@ bool Player::Start() {
 	respawnPos = *Engine::GetInstance().map->playerStartPos;
 
 	// load
-	texture = Engine::GetInstance().textures->Load("Assets/Textures/AnimationSheet_Character.png");
+	texture = Engine::GetInstance().textures->Load(texturePath);
 	std::unordered_map<int, std::string> aliases = { {0,"idle"},{24,"move"},{40,"jump"},{32,"fall"},{48,"death"},{64,"throw"},{45,"falling"}};
-	anims.LoadFromTSX("Assets/Textures/AnimationSheet_Character.tsx", aliases);
+	anims.LoadFromTSX(animationsPath, aliases);
 	//anims.SetCurrent("idle");
 
 	//L03: TODO 2: Initialize Player parameters
@@ -46,7 +46,7 @@ bool Player::Start() {
 	Respawn();
 
 	//initialize audio effect
-	pickCoinFxId = Engine::GetInstance().audio->LoadFx("Assets/Audio/Fx/coin-collision-sound-342335.wav");
+	//pickCoinFxId = Engine::GetInstance().audio->LoadFx("Assets/Audio/Fx/coin-collision-sound-342335.wav");
 
 	return true;
 }
